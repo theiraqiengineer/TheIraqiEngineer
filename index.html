@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Iraqi Engineer – Location Confirmation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #result {
+      margin-top: 30px;
+      padding: 20px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    #result p {
+      margin: 10px 0;
+    }
+
+    #map {
+      margin-top: 20px;
+      height: 300px;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📍 Confirm Your Location</h2>
+  <button onclick="sendLocation()">Send Location</button>
+
+  <div id="result"></div>
+  <div id="map"></div>
+
+  <script>
+    let userLat, userLon;
+
+    function sendLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          userLat = position.coords.latitude;
+          userLon = position.coords.longitude;
+
+          fetch('http://localhost:3000/verify-location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ latitude: userLat, longitude: userLon })
+          })
+          .then(res => res.json())
+          .then(data => {
+            document.getElementById('result').innerHTML = `
+              <p><strong>✅ Message:</strong> ${data.message}</p>
+              <p><strong>🌍 Your Location:</strong> ${data.your_location}</p>
+            `;
+            initMap();
+          });
+        }, () => {
+          alert('Location permission denied');
+        });
+      } else {
+        alert('Geolocation not supported');
+      }
+    }
+
+    function initMap() {
+      const userLocation = { lat: userLat, lng: userLon };
+      const targetLocation = { lat: 33.31525, lng: 44.36608 };
+
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 4,
+        center: userLocation,
+      });
+
+      new google.maps.Marker({
+        position: userLocation,
+        map,
+        label: "You",
+        title: "Your Location",
+      });
+
+      new google.maps.Marker({
+        position: targetLocation,
+        map,
+        label: "📍",
+        title: "Baghdad (Target Location)",
+      });
+
+      // Optional: Draw circle around Baghdad
+      new google.maps.Circle({
+        strokeColor: "#007bff",
+        strokeOpacity: 0.6,
+        strokeWeight: 2,
+        fillColor: "#007bff",
+        fillOpacity: 0.1,
+        map,
+        center: targetLocation,
+        radius: 100, // 100 meters
+      });
+    }
+  </script>
+
+  <!-- Replace with your real API key -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfaI-Vkvzl5w-Gw7yCNFvU3K952i7kQ20&callback=initMap">
+  </script>
+
+</body>
+</html>
+
