@@ -80,7 +80,7 @@
           userLat = position.coords.latitude;
           userLon = position.coords.longitude;
 
-          fetch('http://localhost:3000/verify-location', {
+          fetch('https://backend-lcmx.onrender.com/verify-location', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ latitude: userLat, longitude: userLon })
