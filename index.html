@@ -5,74 +5,315 @@
   <title>The Iraqi Engineer – Location Confirmation</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: #f8f9fa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 20px;
+    :root {
+      --primary-color: #2563eb;
+      --secondary-color: #1e40af;
+      --text-color: #1f2937;
+      --light-gray: #f3f4f6;
+      --border-color: #e5e7eb;
     }
 
-    h2 {
-      color: #333;
-      margin-bottom: 20px;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--light-gray);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .auth-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 1rem;
     }
 
     button {
-      background-color: #007bff;
+      background-color: var(--primary-color);
       color: white;
-      padding: 12px 24px;
+      padding: 0.75rem 1.5rem;
       border: none;
       border-radius: 6px;
-      font-size: 16px;
+      font-size: 1rem;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: background-color 0.2s;
+      width: 100%;
     }
 
     button:hover {
-      background-color: #0056b3;
+      background-color: var(--secondary-color);
     }
 
-    #result {
-      margin-top: 30px;
-      padding: 20px;
+    .tabs {
+      display: flex;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab {
+      padding: 1rem 2rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab.active {
+      border-bottom: 2px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .profile-section {
       background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: 2rem;
     }
 
-    #result p {
-      margin: 10px 0;
+    .location-section {
+      margin-top: 2rem;
     }
 
     #map {
-      margin-top: 20px;
       height: 300px;
       width: 100%;
-      max-width: 500px;
       border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-top: 1rem;
+    }
+
+    .error-message {
+      color: #dc2626;
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
     }
   </style>
 </head>
 <body>
+  <div class="auth-container" id="authContainer">
+    <div class="auth-box">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('signin')">Sign In</div>
+        <div class="tab" onclick="switchTab('signup')">Sign Up</div>
+      </div>
 
-  <h2>📍 Confirm Your Location</h2>
-  <button onclick="sendLocation()">Send Location</button>
+      <div id="signinForm">
+        <div class="form-group">
+          <label for="signinEmail">Email</label>
+          <input type="email" id="signinEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="signinPassword">Password</label>
+          <input type="password" id="signinPassword" required>
+        </div>
+        <button onclick="signIn()">Sign In</button>
+      </div>
 
-  <div id="result"></div>
-  <div id="map"></div>
+      <div id="signupForm" class="hidden">
+        <div class="form-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" required>
+        </div>
+        <button onclick="signUp()">Sign Up</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container hidden" id="mainContainer">
+    <div class="profile-section">
+      <h2>Profile Information</h2>
+      <div class="form-group">
+        <label for="country">Country</label>
+        <select id="country" required>
+          <option value="">Select Country</option>
+          <!-- Add more countries as needed -->
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="birthdate">Birth Date</label>
+        <input type="date" id="birthdate" required>
+      </div>
+      <div class="form-group">
+        <label for="englishLevel">English Language Level</label>
+        <select id="englishLevel" required>
+          <option value="">Select Level</option>
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+          <option value="native">Native</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="studyLevel">Study Level</label>
+        <select id="studyLevel" required>
+          <option value="">Select Level</option>
+          <option value="high_school">High School</option>
+          <option value="bachelors">Bachelor's Degree</option>
+          <option value="masters">Master's Degree</option>
+          <option value="phd">PhD</option>
+        </select>
+      </div>
+      <button onclick="saveProfile()">Save Profile</button>
+    </div>
+
+    <div class="location-section">
+      <h2>📍 Confirm Your Location</h2>
+      <button onclick="sendLocation()">Send Location</button>
+      <div id="result"></div>
+      <div id="map"></div>
+    </div>
+  </div>
 
   <script>
     let userLat, userLon;
+    let currentUser = null;
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+      
+      document.getElementById('signinForm').classList.toggle('hidden', tab !== 'signin');
+      document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
+    }
+
+    async function signIn() {
+      const email = document.getElementById('signinEmail').value;
+      const password = document.getElementById('signinPassword').value;
+
+      try {
+        const response = await fetch('/api/auth/signin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (response.ok) {
+          currentUser = await response.json();
+          showMainContainer();
+        } else {
+          alert('Invalid credentials');
+        }
+      } catch (error) {
+        console.error('Sign in error:', error);
+        alert('An error occurred during sign in');
+      }
+    }
+
+    async function signUp() {
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (response.ok) {
+          currentUser = await response.json();
+          showMainContainer();
+        } else {
+          alert('Sign up failed');
+        }
+      } catch (error) {
+        console.error('Sign up error:', error);
+        alert('An error occurred during sign up');
+      }
+    }
+
+    function showMainContainer() {
+      document.getElementById('authContainer').classList.add('hidden');
+      document.getElementById('mainContainer').classList.remove('hidden');
+    }
+
+    async function saveProfile() {
+      const profileData = {
+        country: document.getElementById('country').value,
+        birthdate: document.getElementById('birthdate').value,
+        englishLevel: document.getElementById('englishLevel').value,
+        studyLevel: document.getElementById('studyLevel').value
+      };
+
+      try {
+        const response = await fetch('/api/profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentUser.token}`
+          },
+          body: JSON.stringify(profileData)
+        });
+
+        if (response.ok) {
+          alert('Profile saved successfully');
+        } else {
+          alert('Failed to save profile');
+        }
+      } catch (error) {
+        console.error('Profile save error:', error);
+        alert('An error occurred while saving profile');
+      }
+    }
 
     function sendLocation() {
       if (navigator.geolocation) {
@@ -80,9 +321,12 @@
           userLat = position.coords.latitude;
           userLon = position.coords.longitude;
 
-          fetch('https://backend-lcmx.onrender.com/verify-location', {
+          fetch('/api/verify-location', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentUser.token}`
+            },
             body: JSON.stringify({ latitude: userLat, longitude: userLon })
           })
           .then(res => res.json())
@@ -124,7 +368,6 @@
         title: "Baghdad (Target Location)",
       });
 
-      // Optional: Draw circle around Baghdad
       new google.maps.Circle({
         strokeColor: "#007bff",
         strokeOpacity: 0.6,
@@ -133,16 +376,14 @@
         fillOpacity: 0.1,
         map,
         center: targetLocation,
-        radius: 100, // 100 meters
+        radius: 100,
       });
     }
   </script>
 
-  <!-- Replace with your real API key -->
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfaI-Vkvzl5w-Gw7yCNFvU3K952i7kQ20&callback=initMap">
   </script>
-
 </body>
 </html>
 
