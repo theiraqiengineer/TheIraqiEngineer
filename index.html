@@ -269,7 +269,8 @@
   <script>
     let userLat, userLon;
     let currentUser = null;
-    const API_URL = 'https://backend-lcmx.onrender.com'; // Make sure this matches your deployed backend URL
+    let map = null;
+    const API_URL = 'https://backend-lcmx.onrender.com';
 
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -317,11 +318,8 @@
         const response = await fetch(`${API_URL}/api/auth/signin`, {
           method: 'POST',
           headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Origin': window.location.origin
+            'Content-Type': 'application/json'
           },
-          credentials: 'include',
           body: JSON.stringify({ email, password })
         });
 
@@ -427,6 +425,10 @@
               <p><strong>🌍 Your Location:</strong> ${data.your_location}</p>
             `;
             initMap();
+          })
+          .catch(error => {
+            console.error('Location verification error:', error);
+            alert('Error verifying location. Please try again.');
           });
         }, () => {
           alert('Location permission denied');
@@ -437,38 +439,69 @@
     }
 
     function initMap() {
-      const userLocation = { lat: userLat, lng: userLon };
+      if (!userLat || !userLon) {
+        console.log('Coordinates not yet available');
+        return;
+      }
+
+      const userLocation = { lat: parseFloat(userLat), lng: parseFloat(userLon) };
       const targetLocation = { lat: 33.31525, lng: 44.36608 };
 
-      const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 4,
-        center: userLocation,
-      });
+      // If map doesn't exist, create it
+      if (!map) {
+        map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 4,
+          center: userLocation,
+        });
+      } else {
+        // If map exists, just update the center
+        map.setCenter(userLocation);
+      }
 
-      new google.maps.Marker({
-        position: userLocation,
-        map,
-        label: "You",
-        title: "Your Location",
-      });
+      // Clear existing markers
+      if (window.markers) {
+        window.markers.forEach(marker => marker.setMap(null));
+      }
+      window.markers = [];
 
-      new google.maps.Marker({
-        position: targetLocation,
-        map,
-        label: "📍",
-        title: "Baghdad (Target Location)",
-      });
+      // Add markers
+      window.markers.push(
+        new google.maps.Marker({
+          position: userLocation,
+          map,
+          label: "You",
+          title: "Your Location",
+        })
+      );
 
-      new google.maps.Circle({
-        strokeColor: "#007bff",
-        strokeOpacity: 0.6,
-        strokeWeight: 2,
-        fillColor: "#007bff",
-        fillOpacity: 0.1,
-        map,
-        center: targetLocation,
-        radius: 100,
-      });
+      window.markers.push(
+        new google.maps.Marker({
+          position: targetLocation,
+          map,
+          label: "📍",
+          title: "Baghdad (Target Location)",
+        })
+      );
+
+      // Clear existing circles
+      if (window.circles) {
+        window.circles.forEach(circle => circle.setMap(null));
+      }
+      window.circles = [];
+
+      // Add circle
+      window.circles.push(
+        new google.maps.Circle({
+          strokeColor: "#007bff",
+          strokeOpacity: 0.6,
+          strokeWeight: 2,
+          fillColor: "#007bff",
+          fillOpacity: 0.1,
+          map,
+          center: targetLocation,
+          radius: 100,
+        })
+      );
     }
 
     // Add country list population
@@ -505,8 +538,18 @@
     };
   </script>
 
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfaI-Vkvzl5w-Gw7yCNFvU3K952i7kQ20&callback=initMap">
+  <!-- Update Google Maps script to load asynchronously -->
+  <script>
+    // Initialize map only after it's needed
+    function loadGoogleMaps() {
+      if (!window.google) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDfaI-Vkvzl5w-Gw7yCNFvU3K952i7kQ20`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+    }
   </script>
 </body>
 </html>
