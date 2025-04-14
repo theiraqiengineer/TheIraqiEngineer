@@ -269,7 +269,7 @@
   <script>
     let userLat, userLon;
     let currentUser = null;
-    const API_URL = 'https://backend-lcmx.onrender.com'; // Updated to use the deployed backend URL
+    const API_URL = 'https://backend-lcmx.onrender.com'; // Make sure this matches your deployed backend URL
 
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -279,27 +279,65 @@
       document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
     }
 
+    // Add error display function
+    function showError(message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = message;
+      
+      // Remove any existing error messages
+      const existingError = document.querySelector('.error-message');
+      if (existingError) {
+        existingError.remove();
+      }
+      
+      // Add the error message after the sign in button
+      const signInButton = document.querySelector('#signinForm button');
+      signInButton.parentNode.insertBefore(errorDiv, signInButton.nextSibling);
+    }
+
+    function clearError() {
+      const errorDiv = document.querySelector('.error-message');
+      if (errorDiv) {
+        errorDiv.remove();
+      }
+    }
+
     async function signIn() {
+      clearError();
       const email = document.getElementById('signinEmail').value;
       const password = document.getElementById('signinPassword').value;
+
+      if (!email || !password) {
+        showError('Please enter both email and password');
+        return;
+      }
 
       try {
         const response = await fetch(`${API_URL}/api/auth/signin`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Origin': window.location.origin
+          },
+          credentials: 'include',
           body: JSON.stringify({ email, password })
         });
 
+        const data = await response.json();
+        
         if (response.ok) {
-          currentUser = await response.json();
+          currentUser = data;
+          localStorage.setItem('token', data.token);
           showMainContainer();
         } else {
-          const error = await response.json();
-          alert(error.message || 'Invalid credentials');
+          console.error('Login failed:', data);
+          showError(data.message || 'Invalid credentials. Please check your email and password.');
         }
       } catch (error) {
         console.error('Sign in error:', error);
-        alert('An error occurred during sign in');
+        showError('Unable to connect to the server. Please try again later.');
       }
     }
 
