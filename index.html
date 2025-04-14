@@ -5,17 +5,19 @@
   <title>The Iraqi Engineer – Location Confirmation</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Apercu:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
     :root {
-      --primary-color: #2563eb;
-      --secondary-color: #1e40af;
-      --text-color: #1f2937;
-      --light-gray: #f3f4f6;
-      --border-color: #e5e7eb;
+      --primary-color: #10162F;
+      --secondary-color: #3A10E5;
+      --accent-color: #FFF0E5;
+      --text-color: #10162F;
+      --light-gray: #F8F9FA;
+      --border-color: #DFE1E5;
+      --success-color: #37C77F;
     }
 
     * {
@@ -25,8 +27,8 @@
     }
 
     body {
-      font-family: 'Roboto', sans-serif;
-      background: var(--light-gray);
+      font-family: 'Apercu', 'Roboto', sans-serif;
+      background: white;
       color: var(--text-color);
       line-height: 1.6;
     }
@@ -42,15 +44,16 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      background: var(--light-gray);
     }
 
     .auth-box {
       background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       width: 100%;
-      max-width: 400px;
+      max-width: 440px;
     }
 
     .form-group {
@@ -61,47 +64,66 @@
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 500;
+      color: var(--text-color);
+      font-size: 0.95rem;
     }
 
     input, select {
       width: 100%;
-      padding: 0.75rem;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
+      padding: 0.875rem;
+      border: 2px solid var(--border-color);
+      border-radius: 4px;
       font-size: 1rem;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 3px rgba(58, 16, 229, 0.1);
     }
 
     button {
-      background-color: var(--primary-color);
+      background-color: var(--secondary-color);
       color: white;
-      padding: 0.75rem 1.5rem;
+      padding: 0.875rem 1.5rem;
       border: none;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 1rem;
+      font-weight: 500;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: all 0.2s;
       width: 100%;
     }
 
     button:hover {
-      background-color: var(--secondary-color);
+      background-color: #2E0CB7;
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
     }
 
     .tabs {
       display: flex;
       margin-bottom: 2rem;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 2px solid var(--border-color);
     }
 
     .tab {
       padding: 1rem 2rem;
       cursor: pointer;
+      font-weight: 500;
+      color: #666;
       border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
     }
 
     .tab.active {
-      border-bottom: 2px solid var(--primary-color);
-      color: var(--primary-color);
+      color: var(--secondary-color);
+      border-bottom: 2px solid var(--secondary-color);
     }
 
     .hidden {
@@ -110,14 +132,25 @@
 
     .profile-section {
       background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       margin-top: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
     }
 
     .location-section {
       margin-top: 2rem;
+      background: white;
+      padding: 2.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     #map {
@@ -125,12 +158,28 @@
       width: 100%;
       border-radius: 8px;
       margin-top: 1rem;
+      border: 2px solid var(--border-color);
     }
 
     .error-message {
       color: #dc2626;
       margin-top: 0.5rem;
       font-size: 0.875rem;
+    }
+
+    .success-message {
+      background: var(--accent-color);
+      color: var(--primary-color);
+      padding: 1rem;
+      border-radius: 4px;
+      margin-top: 1rem;
+    }
+
+    #result {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--light-gray);
+      border-radius: 4px;
     }
   </style>
 </head>
@@ -383,6 +432,39 @@
         radius: 100,
       });
     }
+
+    // Add country list population
+    const countries = [
+      "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+      "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina",
+      "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic",
+      "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti",
+      "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji",
+      "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+      "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan",
+      "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho",
+      "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
+      "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia",
+      "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
+      "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda",
+      "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia",
+      "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa",
+      "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand",
+      "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine",
+      "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+      "Yemen", "Zambia", "Zimbabwe"
+    ];
+
+    // Populate country select
+    window.onload = function() {
+      const countrySelect = document.getElementById('country');
+      countries.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country;
+        option.textContent = country;
+        countrySelect.appendChild(option);
+      });
+    };
   </script>
 
   <script async defer
