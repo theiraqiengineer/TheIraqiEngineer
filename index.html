@@ -5,19 +5,17 @@
   <title>The Iraqi Engineer – Location Confirmation</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Apercu:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
     :root {
-      --primary-color: #10162F;
-      --secondary-color: #3A10E5;
-      --accent-color: #FFF0E5;
-      --text-color: #10162F;
-      --light-gray: #F8F9FA;
-      --border-color: #DFE1E5;
-      --success-color: #37C77F;
+      --primary-color: #2563eb;
+      --secondary-color: #1e40af;
+      --text-color: #1f2937;
+      --light-gray: #f3f4f6;
+      --border-color: #e5e7eb;
     }
 
     * {
@@ -27,8 +25,8 @@
     }
 
     body {
-      font-family: 'Apercu', 'Roboto', sans-serif;
-      background: white;
+      font-family: 'Roboto', sans-serif;
+      background: var(--light-gray);
       color: var(--text-color);
       line-height: 1.6;
     }
@@ -44,16 +42,15 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background: var(--light-gray);
     }
 
     .auth-box {
       background: white;
-      padding: 2.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       width: 100%;
-      max-width: 440px;
+      max-width: 400px;
     }
 
     .form-group {
@@ -64,66 +61,47 @@
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 500;
-      color: var(--text-color);
-      font-size: 0.95rem;
     }
 
     input, select {
       width: 100%;
-      padding: 0.875rem;
-      border: 2px solid var(--border-color);
-      border-radius: 4px;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
       font-size: 1rem;
-      transition: all 0.2s;
-      background: white;
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--secondary-color);
-      box-shadow: 0 0 0 3px rgba(58, 16, 229, 0.1);
     }
 
     button {
-      background-color: var(--secondary-color);
+      background-color: var(--primary-color);
       color: white;
-      padding: 0.875rem 1.5rem;
+      padding: 0.75rem 1.5rem;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 1rem;
-      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background-color 0.2s;
       width: 100%;
     }
 
     button:hover {
-      background-color: #2E0CB7;
-      transform: translateY(-1px);
-    }
-
-    button:active {
-      transform: translateY(0);
+      background-color: var(--secondary-color);
     }
 
     .tabs {
       display: flex;
       margin-bottom: 2rem;
-      border-bottom: 2px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
     }
 
     .tab {
       padding: 1rem 2rem;
       cursor: pointer;
-      font-weight: 500;
-      color: #666;
       border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
     }
 
     .tab.active {
-      color: var(--secondary-color);
-      border-bottom: 2px solid var(--secondary-color);
+      border-bottom: 2px solid var(--primary-color);
+      color: var(--primary-color);
     }
 
     .hidden {
@@ -132,25 +110,14 @@
 
     .profile-section {
       background: white;
-      padding: 2.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       margin-top: 2rem;
-    }
-
-    .section-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      color: var(--primary-color);
     }
 
     .location-section {
       margin-top: 2rem;
-      background: white;
-      padding: 2.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     #map {
@@ -158,28 +125,12 @@
       width: 100%;
       border-radius: 8px;
       margin-top: 1rem;
-      border: 2px solid var(--border-color);
     }
 
     .error-message {
       color: #dc2626;
       margin-top: 0.5rem;
       font-size: 0.875rem;
-    }
-
-    .success-message {
-      background: var(--accent-color);
-      color: var(--primary-color);
-      padding: 1rem;
-      border-radius: 4px;
-      margin-top: 1rem;
-    }
-
-    #result {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: var(--light-gray);
-      border-radius: 4px;
     }
   </style>
 </head>
@@ -269,8 +220,7 @@
   <script>
     let userLat, userLon;
     let currentUser = null;
-    let map = null;
-    const API_URL = 'https://backend-lcmx.onrender.com';
+    const API_URL = 'https://backend-lcmx.onrender.com'; // Updated to use the deployed backend URL
 
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -280,62 +230,27 @@
       document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
     }
 
-    // Add error display function
-    function showError(message) {
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'error-message';
-      errorDiv.textContent = message;
-      
-      // Remove any existing error messages
-      const existingError = document.querySelector('.error-message');
-      if (existingError) {
-        existingError.remove();
-      }
-      
-      // Add the error message after the sign in button
-      const signInButton = document.querySelector('#signinForm button');
-      signInButton.parentNode.insertBefore(errorDiv, signInButton.nextSibling);
-    }
-
-    function clearError() {
-      const errorDiv = document.querySelector('.error-message');
-      if (errorDiv) {
-        errorDiv.remove();
-      }
-    }
-
     async function signIn() {
-      clearError();
       const email = document.getElementById('signinEmail').value;
       const password = document.getElementById('signinPassword').value;
-
-      if (!email || !password) {
-        showError('Please enter both email and password');
-        return;
-      }
 
       try {
         const response = await fetch(`${API_URL}/api/auth/signin`, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
 
-        const data = await response.json();
-        
         if (response.ok) {
-          currentUser = data;
-          localStorage.setItem('token', data.token);
+          currentUser = await response.json();
           showMainContainer();
         } else {
-          console.error('Login failed:', data);
-          showError(data.message || 'Invalid credentials. Please check your email and password.');
+          const error = await response.json();
+          alert(error.message || 'Invalid credentials');
         }
       } catch (error) {
         console.error('Sign in error:', error);
-        showError('Unable to connect to the server. Please try again later.');
+        alert('An error occurred during sign in');
       }
     }
 
@@ -425,10 +340,6 @@
               <p><strong>🌍 Your Location:</strong> ${data.your_location}</p>
             `;
             initMap();
-          })
-          .catch(error => {
-            console.error('Location verification error:', error);
-            alert('Error verifying location. Please try again.');
           });
         }, () => {
           alert('Location permission denied');
@@ -439,117 +350,43 @@
     }
 
     function initMap() {
-      if (!userLat || !userLon) {
-        console.log('Coordinates not yet available');
-        return;
-      }
-
-      const userLocation = { lat: parseFloat(userLat), lng: parseFloat(userLon) };
+      const userLocation = { lat: userLat, lng: userLon };
       const targetLocation = { lat: 33.31525, lng: 44.36608 };
 
-      // If map doesn't exist, create it
-      if (!map) {
-        map = new google.maps.Map(document.getElementById("map"), {
-          zoom: 4,
-          center: userLocation,
-        });
-      } else {
-        // If map exists, just update the center
-        map.setCenter(userLocation);
-      }
-
-      // Clear existing markers
-      if (window.markers) {
-        window.markers.forEach(marker => marker.setMap(null));
-      }
-      window.markers = [];
-
-      // Add markers
-      window.markers.push(
-        new google.maps.Marker({
-          position: userLocation,
-          map,
-          label: "You",
-          title: "Your Location",
-        })
-      );
-
-      window.markers.push(
-        new google.maps.Marker({
-          position: targetLocation,
-          map,
-          label: "📍",
-          title: "Baghdad (Target Location)",
-        })
-      );
-
-      // Clear existing circles
-      if (window.circles) {
-        window.circles.forEach(circle => circle.setMap(null));
-      }
-      window.circles = [];
-
-      // Add circle
-      window.circles.push(
-        new google.maps.Circle({
-          strokeColor: "#007bff",
-          strokeOpacity: 0.6,
-          strokeWeight: 2,
-          fillColor: "#007bff",
-          fillOpacity: 0.1,
-          map,
-          center: targetLocation,
-          radius: 100,
-        })
-      );
-    }
-
-    // Add country list population
-    const countries = [
-      "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
-      "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina",
-      "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic",
-      "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti",
-      "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji",
-      "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-      "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan",
-      "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho",
-      "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
-      "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia",
-      "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
-      "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda",
-      "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia",
-      "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa",
-      "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand",
-      "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine",
-      "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
-      "Yemen", "Zambia", "Zimbabwe"
-    ];
-
-    // Populate country select
-    window.onload = function() {
-      const countrySelect = document.getElementById('country');
-      countries.forEach(country => {
-        const option = document.createElement('option');
-        option.value = country;
-        option.textContent = country;
-        countrySelect.appendChild(option);
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 4,
+        center: userLocation,
       });
-    };
+
+      new google.maps.Marker({
+        position: userLocation,
+        map,
+        label: "You",
+        title: "Your Location",
+      });
+
+      new google.maps.Marker({
+        position: targetLocation,
+        map,
+        label: "📍",
+        title: "Baghdad (Target Location)",
+      });
+
+      new google.maps.Circle({
+        strokeColor: "#007bff",
+        strokeOpacity: 0.6,
+        strokeWeight: 2,
+        fillColor: "#007bff",
+        fillOpacity: 0.1,
+        map,
+        center: targetLocation,
+        radius: 100,
+      });
+    }
   </script>
 
-  <!-- Update Google Maps script to load asynchronously -->
-  <script>
-    // Initialize map only after it's needed
-    function loadGoogleMaps() {
-      if (!window.google) {
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDfaI-Vkvzl5w-Gw7yCNFvU3K952i7kQ20`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-      }
-    }
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfaI-Vkvzl5w-Gw7yCNFvU3K952i7kQ20&callback=initMap">
   </script>
 </body>
 </html>
